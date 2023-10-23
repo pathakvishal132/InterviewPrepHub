@@ -374,18 +374,17 @@ def subcategory():
     return redirect(url_for("home", answered=False))
 
 
-import Levenshtein
+import difflib
 
 
 def calculate_similarity(user_answer, expected_answer):
     user_answer = user_answer.lower()
     expected_answer = expected_answer.lower()
 
-    # Calculate Levenshtein distance
-    distance = Levenshtein.distance(user_answer, expected_answer)
+    # Calculate similarity score using difflib
+    matcher = difflib.SequenceMatcher(None, user_answer, expected_answer)
+    similarity_score = matcher.ratio()
 
-    # Determine similarity score (adjust threshold as needed)
-    similarity_score = 1.0 - (distance / max(len(user_answer), len(expected_answer)))
     return similarity_score
 
 
