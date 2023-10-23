@@ -4,30 +4,56 @@
 {% endblock %}
 {% block content %}
 <div>
-    
-       <form action="/handleans" method="post">
-            
-            <h1>Title:   <h2>{{ title }}</h2></h1>
-            <h1>Question:   <h2>{{question}}</h2></h1>
-            <div class="form-group">
-                <label for="answerInput" class="z1">Answer (Speak or Type):</label>
-                <textarea id="answerInput" rows="4" required class="form-control" name="user_answer"></textarea>
-            </div>
-            <button type="button" id="speechButton" class="btn btn-primary">Start Speaking</button>
-            <button type="button" id="stopRecording" class="btn btn-danger">Stop Recording</button>
-        
-            <button type="submit" class="btn btn-primary">Submit</button>
-            
-        </form>
-        <br>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+   {% if messages %}
+      {% for category, message in messages %}
+         <div id="x"class="alert alert-{{ category }} alert-dismissible fade show mt-2" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+            </button>
+         </div>
+      {% endfor %}
+   {% endif %}
+{% endwith %}
+    <form action="/handleans" method="post">
+        <h1 class="text-primary">Title :{{ title }}</h1>
+        <h1 class="text-secondary">Question: {{ question }}</h1>
+        <div class="form-group">
+            <label for="answerInput" class="z1">Answer (Speak or Type):</label>
+            <textarea id="answerInput" rows="4" required class="form-control" name="user_answer"></textarea>
+        </div>
+        <button type="button" id="speechButton" class="btn btn-primary">Start Speaking</button>
+        <button type="button" id="stopRecording" class="btn btn-danger">Stop Recording</button>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    <br>
+   <div class="row">
+    <div class="col-4">
         <form action="/next" method="post">
-            <button type="submit" class="btn btn-primary">Next </button>
+            <button type="submit" class="btn btn-primary btn-block">Next</button>
         </form>
-        <br>
+    </div>
+    {% if expected_answer %}
+    <div class="col-4">
+        <button type="button" id="showAnswerButton" class="btn btn-primary btn-block">Show Answer</button>
+    </div>
+    {% endif %}
+    <div class="col-4">
         <form action="/previous" method="post">
-            <button type="submit" class="btn btn-primary">Previous</button>
+            <button type="submit" class="btn btn-primary btn-block">Previous</button>
         </form>
-        <h1>{{ feedback }}</h1>
+    </div>
+</div>
+<div id="answerSection" style="display: none; background-color: #f2f2f2; padding: 10px; margin-top: 10px; border: 1px solid #ccc;">
+    <h2 style="font-size: 18px; color: #333; margin: 0;">Expected Answer:</h2>
+    {% if expected_answer %}
+    <p style="font-size: 16px; color: #555; margin: 10px 0;">{{ expected_answer }}</p>
+    {% else %}
+    <p style="font-size: 16px; color: #555; margin: 10px 0;">First, answer the question.</p>
+    {% endif %}
+</div>
+
 </div>
 <script>
     // Rest of the code (speech recognition) goes here
@@ -87,5 +113,54 @@
 
   var stopRecordingButton = document.getElementById('stopRecording');
   stopRecordingButton.addEventListener('click', stopRecording);
+  const showAnswerButton = document.getElementById("showAnswerButton");
+   const answerSection = document.getElementById("answerSection");
+
+    showAnswerButton.addEventListener("click", function () {
+        answerSection.style.display = "block";
+    });
+    function resetPage() {
+     // Clear the answer input
+    document.getElementById('answerSection').style.display = 'none'; // Hide the "Expected Answer" section
+}
+
+// // Function to reset the expected_answer
+// function resetExpectedAnswer() {
+//     fetch('/reset_expected_answer', {
+//         method: 'GET',
+//     })
+//     .then(response => response.json())
+//     .then(data => {
+//         // Reset the expected_answer and hide the "Expected Answer" section
+//         const expectedAnswer = data.expected_answer;
+//             if (expectedAnswer === null) {
+//                 // Code to execute when expectedAnswer is null
+//                 console.log(data)
+//             } else {
+//                 // Code to execute when expectedAnswer is not null
+//                 console.log('expectedAnswer is not null');
+//             }
+//     })
+//     .catch(error => {
+//         console.error('Error resetting expected_answer:', error);
+//     });
+// }
+
+// Add event listeners for both functions
+window.addEventListener('load', resetPage);
+// window.addEventListener('load', resetExpectedAnswer);
 </script>
+<style>
+    .text-primary {
+        font-size: 24px;
+        font-weight: bold;
+        color: #007BFF; /* Blue color */
+    }
+
+    .text-secondary {
+        font-size: 18px;
+        color: #333; /* Dark gray color */
+    }
+</style>
+
 {% endblock %}

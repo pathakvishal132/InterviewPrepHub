@@ -100,6 +100,12 @@ def login():
     return render_template("login.html")
 
 
+@app.route("/reset_expected_answer", methods=["GET"])
+def reset_expected_answer():
+    expected_answer = None  # Reset the expected_answer to None
+    return jsonify({"expected_answer": expected_answer})
+
+
 @app.route("/user_dashboard", methods=["GET", "POST"])
 @login_required
 def user_dashboard():
@@ -256,91 +262,256 @@ def civil():
     return redirect(url_for("manager_dashboard"))
 
 
+# @app.route("/subcategory", methods=["GET", "POST"])
+# def subcategory():
+#     if request.method == "POST":
+#         domain = request.form.get("domain")
+#         subcategory = request.form.get("subcategory")
+#         if domain == "cs":
+#             if subcategory == "web-development":
+#                 all_webdev_data = Webdev.query.all()
+#                 webdev_data = [
+#                     {"name": entry.name, "questions": entry.questions, "ans": entry.ans}
+#                     for entry in all_webdev_data
+#                 ]
+#                 session["webdev_data"] = webdev_data
+#                 session["current_question_index"] = 0
+#                 current_question_index = session["current_question_index"]
+#                 webdev_data = session["webdev_data"]
+#                 if current_question_index < len(webdev_data):
+#                     current_question = webdev_data[current_question_index]
+#                     question = current_question["questions"]
+#                     title = current_question["name"]
+#                 else:
+#                     question = title = "No more questions."
+
+#                 return render_template(
+#                     "userdashboard.html", question=question, title=title, answered=True
+#                 )
+#             elif subcategory == "android-development":
+#                 all_android_data = Android.query.all()
+#                 android_data = [
+#                     {"name": entry.name, "questions": entry.questions, "ans": entry.ans}
+#                     for entry in all_android_data
+#                 ]
+#                 session["android_data"] = android_data
+#                 session["current_question_index"] = 0
+#                 current_question_index = session["current_question_index"]
+#                 android_data = session["android_data"]
+#                 if current_question_index < len(android_data):
+#                     current_question = android_data[current_question_index]
+#                     question = current_question["questions"]
+#                     title = current_question["name"]
+#                 else:
+#                     question = title = "No more questions."
+
+#                 return render_template(
+#                     "userdashboard.html", question=question, title=title, answered=True
+#                 )
+
+
+#             if subcategory == "machine-learning-and-artificial-intelligence":
+#                 pass
+#             if subcategory == "blockchain-development":
+#                 pass
+#             if subcategory == "data-structure":
+#                 pass
+#             pass
+#         if domain == "ee":
+#             pass
+#         if domain == "me":
+#             pass
+#         if domain == "ce":
+#             pass
+#     return redirect(url_for("home", answered=False))
 @app.route("/subcategory", methods=["GET", "POST"])
 def subcategory():
     if request.method == "POST":
         domain = request.form.get("domain")
         subcategory = request.form.get("subcategory")
-        if domain == "cs":
-            if subcategory == "web-development":
-                all_webdev_data = Webdev.query.all()
-                webdev_data = [
-                    {"name": entry.name, "questions": entry.questions, "ans": entry.ans}
-                    for entry in all_webdev_data
-                ]
-                session["webdev_data"] = webdev_data
-                session["current_question_index"] = 0
-                current_question_index = session["current_question_index"]
-                webdev_data = session["webdev_data"]
-                if current_question_index < len(webdev_data):
-                    current_question = webdev_data[current_question_index]
-                    question = current_question["questions"]
-                    title = current_question["name"]
-                else:
-                    question = title = "No more questions."
 
-                return render_template(
-                    "userdashboard.html", question=question, title=title, answered=True
-                )
-            if subcategory == "android-development":
-                pass
-            if subcategory == "machine-learning-and-artificial-intelligence":
-                pass
-            if subcategory == "blockchain-development":
-                pass
-            if subcategory == "data-structure":
-                pass
-            pass
-        if domain == "ee":
-            pass
-        if domain == "me":
-            pass
-        if domain == "ce":
-            pass
+        subcategory_data = None
+
+        # Define a mapping from subcategory names to SQLAlchemy model classes
+        subcategory_mapping = {
+            "web-development": Webdev,
+            "android-development": Android,
+            # Add other subcategories here
+        }
+
+        if domain == "cs" and subcategory in subcategory_mapping:
+            subcategory_model = subcategory_mapping[subcategory]
+            all_subcategory_data = subcategory_model.query.all()
+            subcategory_data = [
+                {"name": entry.name, "questions": entry.questions, "ans": entry.ans}
+                for entry in all_subcategory_data
+            ]
+        if domain == "cs" and subcategory == "android-development":
+            subcategory_model = Android  # Use the Android model class
+            all_subcategory_data = subcategory_model.query.all()
+            subcategory_data = [
+                {"name": entry.name, "questions": entry.questions, "ans": entry.ans}
+                for entry in all_subcategory_data
+            ]
+        if subcategory_data:
+            session["current_subcategory_data"] = subcategory_data
+            session["current_question_index"] = 0
+            current_question_index = session["current_question_index"]
+
+            if current_question_index < len(subcategory_data):
+                current_question = subcategory_data[current_question_index]
+                question = current_question["questions"]
+                title = current_question["name"]
+            else:
+                question = title = "No more questions."
+
+            return render_template(
+                "userdashboard.html", question=question, title=title, answered=True
+            )
+
+        return redirect(url_for("home", answered=False))
+
     return redirect(url_for("home", answered=False))
 
 
+import Levenshtein
+
+
+def calculate_similarity(user_answer, expected_answer):
+    user_answer = user_answer.lower()
+    expected_answer = expected_answer.lower()
+
+    # Calculate Levenshtein distance
+    distance = Levenshtein.distance(user_answer, expected_answer)
+
+    # Determine similarity score (adjust threshold as needed)
+    similarity_score = 1.0 - (distance / max(len(user_answer), len(expected_answer)))
+    return similarity_score
+
+
+def generate_feedback(similarity_score):
+    if similarity_score == 1.0:
+        return "Correct!"
+    elif similarity_score >= 0.8:
+        return "Close, but not quite. Please review your answer."
+    else:
+        return "Incorrect. Please try again."
+
+
+# @app.route("/handleans", methods=["POST"])
+# def handleans():
+#     if request.method == "POST":
+#         user_answer = request.form.get("user_answer")
+#         current_question_index = session["current_question_index"]
+#         webdev_data = session["webdev_data"]
+
+#         current_question = webdev_data[current_question_index]
+#         expected_answer = current_question["ans"]
+
+#         similarity_score = calculate_similarity(user_answer, expected_answer)
+#         feedback = generate_feedback(similarity_score)
+
+#         question = current_question["questions"]
+#         title = current_question["name"]
+#         # Increment the current question index
+
+#         session["current_question_index"] = current_question_index
+
+
+#         return render_template(
+#             "userdashboard.html",
+#             feedback=feedback,
+#             question=question,
+#             title=title,
+#             expected_answer=expected_answer,
+#         )
+#     return redirect(url_for("home", answered=True))
 @app.route("/handleans", methods=["POST"])
 def handleans():
     if request.method == "POST":
         user_answer = request.form.get("user_answer")
-        current_question_index = session["current_question_index"]
-        webdev_data = session["webdev_data"]
+        current_question_index = session.get("current_question_index", 0)
+        subcategory_data = session.get("current_subcategory_data", [])
 
-        current_question = webdev_data[current_question_index]
-        expected_answer = current_question["ans"]
-        feedback = (
-            "Correct!"
-            if user_answer.strip() == expected_answer.strip()
-            else "Incorrect."
-        )
-        question = current_question["questions"]
-        title = current_question["name"]
+        expected_answer = ""  # Set a default value for expected_answer
+
+        if current_question_index < len(subcategory_data):
+            current_question = subcategory_data[current_question_index]
+            expected_answer = current_question.get("ans", "")
+            similarity_score = calculate_similarity(user_answer, expected_answer)
+            feedback = generate_feedback(similarity_score)
+
+            question = current_question.get("questions", "")
+            title = current_question.get("name", "")
+            flash(feedback, category="success")
+        else:
+            feedback = "No more questions."
+            question = title = "No more questions."
+
         # Increment the current question index
 
         session["current_question_index"] = current_question_index
 
         return render_template(
-            "userdashboard.html", feedback=feedback, question=question, title=title
+            "userdashboard.html",
+            question=question,
+            title=title,
+            expected_answer=expected_answer,
         )
+
     return redirect(url_for("home", answered=True))
 
 
+# @app.route("/next", methods=["POST"])
+# def next_question():
+#     if request.method == "POST":
+#         current_question_index = session.get("current_question_index", 0)
+#         webdev_data = session.get("webdev_data", [])
+
+#         if current_question_index < len(webdev_data) - 1:
+#             current_question_index += 1
+#             current_question = webdev_data[current_question_index]
+#             question = current_question.get("questions", "")
+#             title = current_question.get("name", "")
+#         else:
+#             # Handle the case where there are no more questions
+#             question = "No more questions available."
+#             title = "End of questions"
+
+#         session["current_question_index"] = current_question_index
+#         return render_template("userdashboard.html", question=question, title=title)
+
+
+# @app.route("/previous", methods=["POST"])
+# def previous_question():
+#     if request.method == "POST":
+#         current_question_index = session.get("current_question_index", 0)
+#         webdev_data = session.get("webdev_data", [])
+
+#         if current_question_index > 0:
+#             current_question_index -= 1
+
+#         current_question = webdev_data[current_question_index]
+#         question = current_question.get("questions", "")
+#         title = current_question.get("name", "")
+
+
+#         session["current_question_index"] = current_question_index
+#         return render_template("userdashboard.html", question=question, title=title)
 @app.route("/next", methods=["POST"])
 def next_question():
     if request.method == "POST":
         current_question_index = session.get("current_question_index", 0)
-        webdev_data = session.get("webdev_data", [])
+        subcategory_data = session.get("current_subcategory_data", [])
 
-        if current_question_index < len(webdev_data) - 1:
+        if current_question_index < len(subcategory_data) - 1:
             current_question_index += 1
-            current_question = webdev_data[current_question_index]
+            current_question = subcategory_data[current_question_index]
             question = current_question.get("questions", "")
             title = current_question.get("name", "")
         else:
             # Handle the case where there are no more questions
-            question = "No more questions available."
-            title = "End of questions"
+            question = title = "No more questions."
 
         session["current_question_index"] = current_question_index
         return render_template("userdashboard.html", question=question, title=title)
@@ -350,12 +521,11 @@ def next_question():
 def previous_question():
     if request.method == "POST":
         current_question_index = session.get("current_question_index", 0)
-        webdev_data = session.get("webdev_data", [])
+        subcategory_data = session.get("current_subcategory_data", [])
 
         if current_question_index > 0:
             current_question_index -= 1
-
-        current_question = webdev_data[current_question_index]
+        current_question = subcategory_data[current_question_index]
         question = current_question.get("questions", "")
         title = current_question.get("name", "")
 

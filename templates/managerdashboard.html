@@ -3,6 +3,18 @@
     InterviewPrepHub
 {% endblock %}
 {% block content %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+   {% if messages %}
+      {% for category, message in messages %}
+         <div class="alert alert-{{ category }} alert-dismissible fade show mt-2" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+            </button>
+         </div>
+      {% endfor %}
+   {% endif %}
+{% endwith %}
     <section>
         <h1>
             Add questions and Answers for Web-Development
