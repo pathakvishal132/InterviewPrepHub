@@ -280,7 +280,7 @@ def subcategory():
                     question = title = "No more questions."
 
                 return render_template(
-                    "index.html", question=question, title=title, answered=True
+                    "userdashboard.html", question=question, title=title, answered=True
                 )
             if subcategory == "android-development":
                 pass
@@ -307,8 +307,6 @@ def handleans():
         current_question_index = session["current_question_index"]
         webdev_data = session["webdev_data"]
 
-        # You can add your answer analysis logic here
-        # For example, check if the user's answer matches the expected answer in the current question
         current_question = webdev_data[current_question_index]
         expected_answer = current_question["ans"]
         feedback = (
@@ -316,14 +314,53 @@ def handleans():
             if user_answer.strip() == expected_answer.strip()
             else "Incorrect."
         )
-
+        question = current_question["questions"]
+        title = current_question["name"]
         # Increment the current question index
-        current_question_index += 1
+
         session["current_question_index"] = current_question_index
 
-        # Redirect to the next question or a completion page
-        return redirect(url_for("home", feedback=feedback, answered=False))
+        return render_template(
+            "userdashboard.html", feedback=feedback, question=question, title=title
+        )
     return redirect(url_for("home", answered=True))
+
+
+@app.route("/next", methods=["POST"])
+def next_question():
+    if request.method == "POST":
+        current_question_index = session.get("current_question_index", 0)
+        webdev_data = session.get("webdev_data", [])
+
+        if current_question_index < len(webdev_data) - 1:
+            current_question_index += 1
+            current_question = webdev_data[current_question_index]
+            question = current_question.get("questions", "")
+            title = current_question.get("name", "")
+        else:
+            # Handle the case where there are no more questions
+            question = "No more questions available."
+            title = "End of questions"
+
+        session["current_question_index"] = current_question_index
+        return render_template("userdashboard.html", question=question, title=title)
+
+
+@app.route("/previous", methods=["POST"])
+def previous_question():
+    if request.method == "POST":
+        current_question_index = session.get("current_question_index", 0)
+        webdev_data = session.get("webdev_data", [])
+
+        if current_question_index > 0:
+            current_question_index -= 1
+
+        current_question = webdev_data[current_question_index]
+        question = current_question.get("questions", "")
+        title = current_question.get("name", "")
+
+        session["current_question_index"] = current_question_index
+        return render_template("userdashboard.html", question=question, title=title)
 
 
 @app.route("/logout")

@@ -1,11 +1,91 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% block title %}
+    InterviewPrepHub
+{% endblock %}
+{% block content %}
+<div>
     
-</body>
-</html>
+       <form action="/handleans" method="post">
+            
+            <h1>Title:   <h2>{{ title }}</h2></h1>
+            <h1>Question:   <h2>{{question}}</h2></h1>
+            <div class="form-group">
+                <label for="answerInput" class="z1">Answer (Speak or Type):</label>
+                <textarea id="answerInput" rows="4" required class="form-control" name="user_answer"></textarea>
+            </div>
+            <button type="button" id="speechButton" class="btn btn-primary">Start Speaking</button>
+            <button type="button" id="stopRecording" class="btn btn-danger">Stop Recording</button>
+        
+            <button type="submit" class="btn btn-primary">Submit</button>
+            
+        </form>
+        <br>
+        <form action="/next" method="post">
+            <button type="submit" class="btn btn-primary">Next </button>
+        </form>
+        <br>
+        <form action="/previous" method="post">
+            <button type="submit" class="btn btn-primary">Previous</button>
+        </form>
+        <h1>{{ feedback }}</h1>
+</div>
+<script>
+    // Rest of the code (speech recognition) goes here
+  var speechRecognition;
+
+  // Check browser compatibility
+  if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+      // Create speech recognition instance
+      speechRecognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+
+      // Configure speech recognition
+      speechRecognition.continuous = true;
+      speechRecognition.interimResults = true;
+
+      // Event listener for speech recognition results
+      speechRecognition.addEventListener('result', function(event) {
+          var transcript = event.results[event.results.length - 1][0].transcript;
+          document.getElementById('answerInput').value = transcript;
+      });
+
+      // Event listener for speech recognition errors
+      speechRecognition.addEventListener('error', function(event) {
+          console.error('Speech recognition error:', event.error);
+      });
+  } else {
+      console.error('Speech recognition not supported.');
+      // Disable speech-to-text functionality or provide an alternative input method
+  }
+
+  
+
+  // Function to start/stop speech recognition
+  function toggleSpeechRecognition() {
+      if (speechRecognition) {
+          if (speechRecognition.recognizing) {
+              speechRecognition.stop();
+              document.getElementById('speechButton').textContent = 'Start Speaking';
+          } else {
+              speechRecognition.start();
+              document.getElementById('speechButton').textContent = 'Stop Speaking';
+          }
+      }
+  }
+
+  // Function to stop recording
+  function stopRecording() {
+      if (speechRecognition) {
+          speechRecognition.stop();
+          document.getElementById('speechButton').textContent = 'Start Speaking';
+      }
+  }
+
+ 
+
+  var speechButton = document.getElementById('speechButton');
+  speechButton.addEventListener('click', toggleSpeechRecognition);
+
+  var stopRecordingButton = document.getElementById('stopRecording');
+  stopRecordingButton.addEventListener('click', stopRecording);
+</script>
+{% endblock %}

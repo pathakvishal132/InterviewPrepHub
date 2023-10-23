@@ -4,43 +4,31 @@
 {% endblock %}
 {% block content %}
 <div class="container">
-   {% if not  answered %} 
-   <form action="/subcategory" method="post">
-    <div class="form-group">
-        <label for="domainSelect">Domain:</label>
-        <select id="domainSelect" name="domain" required class="form-control">
-            <option value="">Select a domain</option>
-            <option value="cs">Computer Science</option>
-            <option value="ee">Electrical Engineering</option>
-            <option value="me">Mechanical Engineering</option>
-            <option value="ce">Civil Engineering</option>
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label for="subcategorySelect">Subcategory:</label>
-        <select id="subcategorySelect" name="subcategory" required class="form-control">
-            <option value="">Select a subcategory</option>
-        </select>
-    </div>
-    <button type="submit">Submit</button>
-</form>
-       {%else%}
-       <form action="/handleans" method="post">
-        <!-- Answer input (speech-to-text) -->
-        <h1>{{ title }}</h1>
-        <p>{{ question }}</p>
-        <div class="form-group">
-            <label for="answerInput" class="z1">Answer (Speak or Type):</label>
-            <textarea id="answerInput" rows="4" required class="form-control" name="user_answer"></textarea>
-        </div>
-        <button type="button" id="speechButton" class="btn btn-primary">Start Speaking</button>
-        <button type="button" id="stopRecording" class="btn btn-danger">Stop Recording</button>
     
-        <button type="submit" class="btn btn-primary">Submit</button>
+   <form action="/subcategory" method="post">
+        <div class="form-group">
+            <label for="domainSelect">Domain:</label>
+            <select id="domainSelect" name="domain" required class="form-control">
+                <option value="">Select a domain</option>
+                <option value="cs">Computer Science</option>
+                <option value="ee">Electrical Engineering</option>
+                <option value="me">Mechanical Engineering</option>
+                <option value="ce">Civil Engineering</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="subcategorySelect">Subcategory:</label>
+            <select id="subcategorySelect" name="subcategory" required class="form-control">
+                <option value="">Select a subcategory</option>
+            </select>
+        </div>
+        <button type="submit">Submit</button>
     </form>
-     {%endif%}
-    <div id="feedbackSection"></div>
+     
+        
+     
+   
 </div>
 
 <script>
@@ -71,66 +59,6 @@
       subcategorySelect.appendChild(option);
   }
 
-  // Rest of the code (speech recognition) goes here
-  var speechRecognition;
-
-  // Check browser compatibility
-  if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
-      // Create speech recognition instance
-      speechRecognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-
-      // Configure speech recognition
-      speechRecognition.continuous = true;
-      speechRecognition.interimResults = true;
-
-      // Event listener for speech recognition results
-      speechRecognition.addEventListener('result', function(event) {
-          var transcript = event.results[event.results.length - 1][0].transcript;
-          document.getElementById('answerInput').value = transcript;
-      });
-
-      // Event listener for speech recognition errors
-      speechRecognition.addEventListener('error', function(event) {
-          console.error('Speech recognition error:', event.error);
-      });
-  } else {
-      console.error('Speech recognition not supported.');
-      // Disable speech-to-text functionality or provide an alternative input method
-  }
-
-  // Function to handle form submission
-  function handleSubmit(event) {
-      event.preventDefault();
-      // Rest of the code for form submission
-  }
-
-  // Function to start/stop speech recognition
-  function toggleSpeechRecognition() {
-      if (speechRecognition) {
-          if (speechRecognition.recognizing) {
-              speechRecognition.stop();
-              document.getElementById('speechButton').textContent = 'Start Speaking';
-          } else {
-              speechRecognition.start();
-              document.getElementById('speechButton').textContent = 'Stop Speaking';
-          }
-      }
-  }
-
-  // Function to stop recording
-  function stopRecording() {
-      if (speechRecognition) {
-          speechRecognition.stop();
-          document.getElementById('speechButton').textContent = 'Start Speaking';
-      }
-  }
-
- 
-
-  var speechButton = document.getElementById('speechButton');
-  speechButton.addEventListener('click', toggleSpeechRecognition);
-
-  var stopRecordingButton = document.getElementById('stopRecording');
-  stopRecordingButton.addEventListener('click', stopRecording);
+  
 </script>
 {% endblock %}
