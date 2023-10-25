@@ -336,7 +336,9 @@ def subcategory():
         subcategory_mapping = {
             "web-development": Webdev,
             "android-development": Android,
-            # Add other subcategories here
+            "machine-learning-and-artificial-intelligence": MlAi,
+            "blockchain-development": Blockchain,
+            "data-structure": Dsa,
         }
 
         if domain == "cs" and subcategory in subcategory_mapping:
@@ -348,6 +350,30 @@ def subcategory():
             ]
         if domain == "cs" and subcategory == "android-development":
             subcategory_model = Android  # Use the Android model class
+            all_subcategory_data = subcategory_model.query.all()
+            subcategory_data = [
+                {"name": entry.name, "questions": entry.questions, "ans": entry.ans}
+                for entry in all_subcategory_data
+            ]
+        if domain == "cs" and subcategory == "blockchain-development":
+            subcategory_model = Blockchain  # Use the Blockchain model class
+            all_subcategory_data = subcategory_model.query.all()
+            subcategory_data = [
+                {"name": entry.name, "questions": entry.questions, "ans": entry.ans}
+                for entry in all_subcategory_data
+            ]
+        if domain == "cs" and subcategory == "data-structure":
+            subcategory_model = Dsa  # Use the Data Structure model class
+            all_subcategory_data = subcategory_model.query.all()
+            subcategory_data = [
+                {"name": entry.name, "questions": entry.questions, "ans": entry.ans}
+                for entry in all_subcategory_data
+            ]
+        if (
+            domain == "cs"
+            and subcategory == "machine-learning-and-artificial-intelligence"
+        ):
+            subcategory_model = MlAi  # Use the Machine Learning and AI model class
             all_subcategory_data = subcategory_model.query.all()
             subcategory_data = [
                 {"name": entry.name, "questions": entry.questions, "ans": entry.ans}
