@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% block title %}
+    InterviewPrepHub
+{% endblock %}
+{% block content %}
+<div class="container">
+    <h2 style="color: #28a745;">Welcome to InterviewPrepHub</h2>
+    <p style="color: #333; font-size: 18px;">Select your domain and subdomain to start your interview preparation. Get ready to ace your upcoming interviews!</p>
+
+    <form action="/subcategory" method="post">
+        <div class="form-group">
+            <label for="domainSelect" style="color: #333;">Domain:</label>
+            <select id="domainSelect" name="domain" required class="form-control">
+                <option value="" style="color: #333;">Select a domain</option>
+                <option value="cs" style="color: #333;">Computer Science</option>
+                <option value="ee" style="color: #333;">Electrical Engineering</option>
+                <option value="me" style="color: #333;">Mechanical Engineering</option>
+                <option value="ce" style="color: #333;">Civil Engineering</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="subcategorySelect" style="color: #333;">Subcategory:</label>
+            <select id="subcategorySelect" name="subcategory" required class="form-control">
+                <option value="" style="color: #333;">Select a subcategory</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-success">Start Preparation</button>
+    </form>
+    
+    <!-- Additional Sections -->
+    <hr>
+    <section>
+        <h3 style="color: #28a745;">Why Choose InterviewPrepHub?</h3>
+        <p style="color: #333; font-size: 18px;">Discover the advantages of using our platform for interview preparation.</p>
+        <!-- Add more details about the benefits of the platform -->
+    </section>
+
+    <hr>
+    <section>
+        <h3 style="color: #28a745;">Featured Domains</h3>
+        <p style="color: #333; font-size: 18px;">Explore popular interview domains and subdomains:</p>
+        <ul>
+            <li style="color: #28a745;">Computer Science</li>
+            <li style="color: #28a745;">Electrical Engineering</li>
+            <li style="color: #28a745;">Mechanical Engineering</li>
+            <li style="color: #28a745;">Civil Engineering</li>
+            <!-- Add more domains and subdomains -->
+        </ul>
+    </section>
+
+    <hr>
+    <section>
+        <h3 style="color: #28a745;">Testimonials</h3>
+        <p style="color: #333; font-size: 18px;">See what our users have to say about their experience with InterviewPrepHub:</p>
+        <!-- Add user testimonials and reviews -->
+    </section>
+</div>
+
+<script>
+  // JavaScript code here
+  var domainSelect = document.getElementById('domainSelect');
+  var subcategorySelect = document.getElementById('subcategorySelect');
+
+  domainSelect.addEventListener('change', function() {
+      var selectedDomain = domainSelect.value;
+
+      // Clear the previous options
+      subcategorySelect.innerHTML = '<option value="" style="color: #333;">Select a subcategory</option>';
+
+      // Add options based on the selected domain
+      if (selectedDomain === 'cs') {
+          addSubcategoryOption('Web Development');
+          addSubcategoryOption('Android Development');
+          addSubcategoryOption('Machine Learning and Artificial Intelligence');
+          addSubcategoryOption('Blockchain Development');
+          addSubcategoryOption('Data Structure');
+      }
+  });
+
+  function addSubcategoryOption(subcategory) {
+      var option = document.createElement('option');
+      option.value = subcategory.toLowerCase().replace(/\s/g, '-');
+      option.text = subcategory;
+      subcategorySelect.appendChild(option);
+  }
+</script>
+
+<style>
+    /* Add custom CSS styles here */
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        text-align: center;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    button {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        background-color: #28a745;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #218838;
+    }
+</style>
+{% endblock %}
